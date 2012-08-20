@@ -1,0 +1,26 @@
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  color: black;
+  font-size: 14px;
+  margin: 0 auto;
+  padding: 0;
+  width: 500px;
+}
+
+header, footer {
+  margin: 10px 0;
+  height: 20px;
+}
+header .title {
+  float: left;
+}
+header .score {
+  float: right;
+}
+div.main {
+  clear: left;
+}
+
+canvas#game {
+  background: #ffe;
+}
