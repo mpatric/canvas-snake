@@ -1,3 +1,30 @@
+// Point
+
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+Point.prototype.add = function(otherPoint) {
+  return new Point(this.x + otherPoint.x, this.y + otherPoint.y);
+}
+
+Point.prototype.isEqualTo = function(otherPoint) {
+  return (this.x == otherPoint.x && this.y == otherPoint.y);
+}
+
+Point.prototype.set = function(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+Point.prototype.toString = function() {
+  return "(" + this.x + "," + this.y + ")";
+}
+
+
+// PlayField
+
 function PlayField(width, height) {
   this.width = width;
   this.height = height;
@@ -19,6 +46,9 @@ PlayField.prototype.killMushroom = function() {
   // TODO
 }
 
+
+// Snake
+
 function Snake(playField, length) {
   this.playField = playField;
   this.segments = [];
@@ -28,8 +58,14 @@ function Snake(playField, length) {
   var x = Math.round(playField.width / 2);
   var y = Math.round(playField.height / 2);
   for (var i = 0; i < length; i++) {
-    this.segments.push(new Object({x: x, y: y}))
+    this.segments.push(new Point(x, y));
   }
+}
+
+Snake.prototype.toString = function() {
+  return map(this.segments, function(segment){
+    return segment.toString();
+  }).join(' ');
 }
 
 Snake.prototype.head = function() {
@@ -48,12 +84,12 @@ Snake.prototype.draw = function(canvas) {
 
 Snake.prototype.move = function() {
   snake = this;
+  console.log('moving snake ' + snake.toString());
   for (var i = snake.segments.length - 1; i > 0; i--) {
-    snake.segments[i].x = snake.segments[i - 1].x;
-    snake.segments[i].y = snake.segments[i - 1].y;
+    snake.segments[i].set(snake.segments[i - 1].x, snake.segments[i - 1].y);
   }
-  snake.head.x += snake.dx;
-  snake.head.y += snake.dy;
+  snake.head().set(snake.head().x + snake.dx, snake.head().y + snake.dy);
+  console.log('snake now ' + snake.toString());
   if (snake.hasMetItsDoom()) {
     snake.alive = false;
   }
@@ -61,11 +97,11 @@ Snake.prototype.move = function() {
 
 Snake.prototype.hasMetItsDoom = function() {
   snake = this;
-  if (snake.head.x < 0 || snake.head.x >= snake.playField.width || snake.head.y < 0 || snake.head.y >= snake.playField.height) {
+  if (snake.head().x < 0 || snake.head().x >= snake.playField.width || snake.head().y < 0 || snake.head().y >= snake.playField.height) {
     console.log('snake hit the edge of the play field');
     return true;
   }
-  if (arrayHas(snake.segments, 1, function(segment) { return(snake.head.x == segment.x && snake.head.y == segment.y); })) {
+  if (arrayHas(snake.segments, 1, function(segment) { return(snake.head().x == segment.x && snake.head().y == segment.y); })) {
     console.log('snake hit itself');
     return true;
   }
@@ -74,8 +110,6 @@ Snake.prototype.hasMetItsDoom = function() {
 
 /*
 
-snake.move
-snake.hasCrashed
 snake.grow
 snake.changeDirection(direction)
 

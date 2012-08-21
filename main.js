@@ -32,6 +32,14 @@ function each(array, action) {
   }
 }
 
+function map(array, action) {
+  var result = []
+  each(array, function(n) {
+    result.push(action(n));
+  });
+  return result
+}
+
 function arrayHas(array, start, test) {
   for (var i = start; i < array.length; i++) {
     var t = test(array[i]);
