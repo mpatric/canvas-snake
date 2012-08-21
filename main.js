@@ -6,14 +6,38 @@ var readyStateCheckInterval = setInterval(function() {
 }, 10);
 
 function init() {
-  var playField = new PlayField(50, 50);
-  var snake = new Snake(playField);
-  var canvas = document.getElementById('game');
-  snake.draw(canvas);
+  playField = new PlayField(50, 50);
+  snake = new Snake(playField, 5);
+  canvas = document.getElementById('game');
+  ticker = setInterval(function() {
+    tick();
+  }, 500);
+}
+
+function stop() {
+  clearInterval(ticker);
+}
+
+function tick() {
+  console.log('tick');
+  if (snake.alive) {
+    snake.move();
+    snake.draw(canvas);
+  }
 }
 
 function each(array, action) {
   for (var i = 0; i < array.length; i++) {
     action(array[i]);
   }
+}
+
+function arrayHas(array, start, test) {
+  for (var i = start; i < array.length; i++) {
+    var t = test(array[i]);
+    if (t) {
+      return true;
+    }
+  }
+  return false;
 }
