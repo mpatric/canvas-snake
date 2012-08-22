@@ -30,35 +30,29 @@ function PlayField(width, height) {
   this.height = height;
 }
 
-PlayField.prototype.lethalSquare = function() {
-  
-}
-
-PlayField.prototype.spawnMushroom = function() {
+PlayField.prototype.update = function() {
   // TODO
 }
 
-PlayField.prototype.eatMushroom = function() {
+PlayField.prototype.munchMushroom = function(x, y) {
   // TODO
-}
-
-PlayField.prototype.killMushroom = function() {
-  // TODO
+  return false;
 }
 
 
 // Snake
 
 function Snake(playField, length) {
-  this.playField = playField;
-  this.segments = [];
-  this.alive = true;
-  this.dx = 1;
-  this.dy = 0;
+  snake = this;
+  snake.playField = playField;
+  snake.segments = [];
+  snake.alive = true;
+  snake.dx = 1;
+  snake.dy = 0;
   var x = Math.round(playField.width / 2);
   var y = Math.round(playField.height / 2);
   for (var i = 0; i < length; i++) {
-    this.segments.push(new Point(x, y));
+    snake.segments.push(new Point(x, y));
   }
 }
 
@@ -77,6 +71,7 @@ Snake.prototype.draw = function(canvas) {
   var xScale = canvas.width / this.playField.width;
   var yScale = canvas.height / this.playField.height;
   context.fillStyle = 'red';
+  context.clearRect(0, 0, canvas.width, canvas.height);
   each(this.segments, function(segment) {
     context.fillRect(segment.x * xScale, segment.y * yScale, xScale, yScale);
   });
@@ -84,38 +79,66 @@ Snake.prototype.draw = function(canvas) {
 
 Snake.prototype.move = function() {
   snake = this;
-  console.log('moving snake ' + snake.toString());
-  for (var i = snake.segments.length - 1; i > 0; i--) {
-    snake.segments[i].set(snake.segments[i - 1].x, snake.segments[i - 1].y);
-  }
-  snake.head().set(snake.head().x + snake.dx, snake.head().y + snake.dy);
-  console.log('snake now ' + snake.toString());
-  if (snake.hasMetItsDoom()) {
+  if (snake.willMeetItsDoom()) {
     snake.alive = false;
+  } else {
+    if (snake.willMunchAMushroom()) {
+      snake.grow();
+    }
+    for (var i = snake.segments.length - 1; i > 0; i--) {
+      snake.segments[i].set(snake.segments[i - 1].x, snake.segments[i - 1].y);
+    }
+    snake.head().set(snake.head().x + snake.dx, snake.head().y + snake.dy);
   }
 }
 
-Snake.prototype.hasMetItsDoom = function() {
+Snake.prototype.willMeetItsDoom = function() {
   snake = this;
-  if (snake.head().x < 0 || snake.head().x >= snake.playField.width || snake.head().y < 0 || snake.head().y >= snake.playField.height) {
+  var newX = snake.head().x + snake.dx;
+  var newY = snake.head().y + snake.dy;
+  if (newX < 0 || newX >= snake.playField.width || newY < 0 || newY >= snake.playField.height) {
     console.log('snake hit the edge of the play field');
     return true;
   }
-  if (arrayHas(snake.segments, 1, function(segment) { return(snake.head().x == segment.x && snake.head().y == segment.y); })) {
+  if (arrayHas(snake.segments, 0, snake.segments.length - 1, function(segment) { return(newX == segment.x && newY == segment.y); })) {
     console.log('snake hit itself');
     return true;
   }
   return false;
 }
 
-/*
+Snake.prototype.willMunchAMushroom = function() {
+  return playField.munchMushroom(snake.head().x + snake.dx, snake.head().y + snake.dy);
+}
 
+Snake.prototype.grow = function() {
+  // TODO
+}
+
+/*
 snake.grow
 snake.changeDirection(direction)
-
-playField.blockContents (empty, mushroom, wall, snake segment?)
-playField.spawnMushroom
-playField.eatMushroom
-playField.killMushroom
-
 */
+
+// Keyboard controller
+
+// left: 37
+// right: 39
+// up: 38
+// down: 40
+
+function KeyboardController(snake) {
+  keyboardController = this;
+  keyboardController.snake = snake;
+  keyboardController.keysDown = [];
+  document.onkeydown= function(event) { keyboardController.keyDown(event); }
+  document.onkeyup= function(event) { keyboardController.keyUp(event); }
+}
+
+KeyboardController.prototype.keyDown = function(event) {
+  var key= (event || window.event).keyCode;
+}
+
+KeyboardController.prototype.keyUp = function(event) {
+  var key= (event || window.event).keyCode;
+}
