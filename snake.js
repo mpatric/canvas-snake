@@ -34,6 +34,7 @@ function PlayField(width, height) {
   this.height = height;
   this.ticks = 0;
   this.score = 0;
+  this.mushrooms = [];
 }
 
 PlayField.prototype.update = function() {
@@ -44,6 +45,13 @@ PlayField.prototype.update = function() {
     var scoreSpan = document.getElementById('score');
     scoreSpan.innerHTML = Math.floor(this.score);
   }
+  if (this.mushrooms.length < 3 && Math.floor(Math.random() * 20) == 3) {
+    this.spawnMushroom();
+  }
+}
+
+PlayField.prototype.spawnMushroom = function() {
+  
 }
 
 PlayField.prototype.munchMushroom = function(point) {
