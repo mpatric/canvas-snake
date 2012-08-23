@@ -5,17 +5,21 @@ function Point(x, y) {
   this.y = y;
 }
 
+Point.prototype.set = function(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
 Point.prototype.add = function(otherPoint) {
   return new Point(this.x + otherPoint.x, this.y + otherPoint.y);
 }
 
-Point.prototype.isEqualTo = function(otherPoint) {
-  return (this.x == otherPoint.x && this.y == otherPoint.y);
+Point.prototype.addTo = function(otherPoint) {
+  this.set(this.x + otherPoint.x, this.y + otherPoint.y);
 }
 
-Point.prototype.set = function(x, y) {
-  this.x = x;
-  this.y = y;
+Point.prototype.isEqualTo = function(otherPoint) {
+  return (this.x == otherPoint.x && this.y == otherPoint.y);
 }
 
 Point.prototype.toString = function() {
@@ -34,7 +38,7 @@ PlayField.prototype.update = function() {
   // TODO
 }
 
-PlayField.prototype.munchMushroom = function(x, y) {
+PlayField.prototype.munchMushroom = function(point) {
   // TODO
   return false;
 }
@@ -43,12 +47,11 @@ PlayField.prototype.munchMushroom = function(x, y) {
 // Snake
 
 function Snake(playField, length) {
-  snake = this;
+  var snake = this;
   snake.playField = playField;
   snake.segments = [];
   snake.alive = true;
-  snake.dx = 1;
-  snake.dy = 0;
+  snake.direction = new Point(1, 0);
   var x = Math.round(playField.width / 2);
   var y = Math.round(playField.height / 2);
   for (var i = 0; i < length; i++) {
@@ -78,7 +81,7 @@ Snake.prototype.draw = function(canvas) {
 }
 
 Snake.prototype.move = function() {
-  snake = this;
+  var snake = this;
   if (snake.willMeetItsDoom()) {
     snake.alive = false;
   } else {
@@ -88,19 +91,18 @@ Snake.prototype.move = function() {
     for (var i = snake.segments.length - 1; i > 0; i--) {
       snake.segments[i].set(snake.segments[i - 1].x, snake.segments[i - 1].y);
     }
-    snake.head().set(snake.head().x + snake.dx, snake.head().y + snake.dy);
+    snake.head().addTo(snake.direction);
   }
 }
 
 Snake.prototype.willMeetItsDoom = function() {
-  snake = this;
-  var newX = snake.head().x + snake.dx;
-  var newY = snake.head().y + snake.dy;
-  if (newX < 0 || newX >= snake.playField.width || newY < 0 || newY >= snake.playField.height) {
+  var snake = this;
+  var newHead = snake.head().add(snake.direction);
+  if (newHead.x < 0 || newHead.x >= snake.playField.width || newHead.y < 0 || newHead.y >= snake.playField.height) {
     console.log('snake hit the edge of the play field');
     return true;
   }
-  if (arrayHas(snake.segments, 0, snake.segments.length - 1, function(segment) { return(newX == segment.x && newY == segment.y); })) {
+  if (arrayHas(snake.segments, 0, snake.segments.length - 1, function(segment) { return(newHead.x == segment.x && newHead.y == segment.y); })) {
     console.log('snake hit itself');
     return true;
   }
@@ -108,16 +110,25 @@ Snake.prototype.willMeetItsDoom = function() {
 }
 
 Snake.prototype.willMunchAMushroom = function() {
-  return playField.munchMushroom(snake.head().x + snake.dx, snake.head().y + snake.dy);
+  var newHead = snake.head().add(snake.direction);
+  return playField.munchMushroom(newHead);
 }
 
 Snake.prototype.grow = function() {
   // TODO
 }
 
+Snake.prototype.changeDirection = function(direction) {
+  if (direction != undefined) {
+    var d = this.direction.add(direction);
+    if (d.x != 0 || d.y != 0) { // don't allow player to move back in the direction they are going
+      this.direction = direction;
+    }
+  }
+}
+
 /*
 snake.grow
-snake.changeDirection(direction)
 */
 
 // Keyboard controller
@@ -127,18 +138,28 @@ snake.changeDirection(direction)
 // up: 38
 // down: 40
 
+keyMap = new Object({37: new Point(-1, 0), 39: new Point(1, 0), 38: new Point(0, -1), 40: new Point(0, 1)});
+
 function KeyboardController(snake) {
-  keyboardController = this;
+  var keyboardController = this;
   keyboardController.snake = snake;
   keyboardController.keysDown = [];
-  document.onkeydown= function(event) { keyboardController.keyDown(event); }
-  document.onkeyup= function(event) { keyboardController.keyUp(event); }
+  document.onkeydown = function(event) { keyboardController.keyDown(event); }
+  document.onkeyup = function(event) { keyboardController.keyUp(event); }
 }
 
 KeyboardController.prototype.keyDown = function(event) {
-  var key= (event || window.event).keyCode;
+  var key = (event || window.event).keyCode;
+  if (this.keysDown.indexOf(key) == -1) {
+    this.keysDown.push(key);
+    this.snake.changeDirection(keyMap[key]);
+  }
 }
 
 KeyboardController.prototype.keyUp = function(event) {
-  var key= (event || window.event).keyCode;
+  var key = (event || window.event).keyCode;
+  var index = this.keysDown.indexOf(key);
+  if (index >= 0) {
+    this.keysDown.splice(index, 1);
+  }
 }
