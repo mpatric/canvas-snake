@@ -32,10 +32,18 @@ Point.prototype.toString = function() {
 function PlayField(width, height) {
   this.width = width;
   this.height = height;
+  this.ticks = 0;
+  this.score = 0;
 }
 
 PlayField.prototype.update = function() {
-  // TODO
+  this.ticks++;
+  var oldScore = Math.floor(this.score);
+  this.score += 0.1;
+  if (oldScore != Math.floor(this.score)) {
+    var scoreSpan = document.getElementById('score');
+    scoreSpan.innerHTML = Math.floor(this.score);
+  }
 }
 
 PlayField.prototype.munchMushroom = function(point) {
@@ -52,6 +60,7 @@ function Snake(playField, length) {
   snake.segments = [];
   snake.alive = true;
   snake.direction = new Point(1, 0);
+  snake.lastDirection = snake.direction;
   var x = Math.round(playField.width / 2);
   var y = Math.round(playField.height / 2);
   for (var i = 0; i < length; i++) {
@@ -69,15 +78,19 @@ Snake.prototype.head = function() {
   return this.segments[0];
 }
 
+Snake.prototype.tail = function() {
+  return this.segments[this.segments.length - 1];
+}
+
 Snake.prototype.draw = function(canvas) {
   var context = canvas.getContext('2d');
   var xScale = canvas.width / this.playField.width;
   var yScale = canvas.height / this.playField.height;
   context.fillStyle = 'red';
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  each(this.segments, function(segment) {
-    context.fillRect(segment.x * xScale, segment.y * yScale, xScale, yScale);
-  });
+  if (snake.previousTail != undefined && !snake.previousTail.isEqualTo(snake.head())) {
+    context.clearRect(snake.previousTail.x * xScale, snake.previousTail.y * yScale, xScale, yScale);
+  }
+  context.fillRect(snake.head().x * xScale, snake.head().y * yScale, xScale, yScale);
 }
 
 Snake.prototype.move = function() {
@@ -85,13 +98,18 @@ Snake.prototype.move = function() {
   if (snake.willMeetItsDoom()) {
     snake.alive = false;
   } else {
+    if (snake.playField.ticks % 10 == 0) {
+      snake.grow();
+    }
     if (snake.willMunchAMushroom()) {
       snake.grow();
     }
+    snake.previousTail = new Point(snake.tail().x, snake.tail().y);
     for (var i = snake.segments.length - 1; i > 0; i--) {
       snake.segments[i].set(snake.segments[i - 1].x, snake.segments[i - 1].y);
     }
     snake.head().addTo(snake.direction);
+    snake.lastDirection = snake.direction;
   }
 }
 
@@ -115,12 +133,13 @@ Snake.prototype.willMunchAMushroom = function() {
 }
 
 Snake.prototype.grow = function() {
-  // TODO
+  console.log('grow!');
+  this.segments.push(new Point(snake.tail().x, snake.tail().y));
 }
 
 Snake.prototype.changeDirection = function(direction) {
   if (direction != undefined) {
-    var d = this.direction.add(direction);
+    var d = this.lastDirection.add(direction);
     if (d.x != 0 || d.y != 0) { // don't allow player to move back in the direction they are going
       this.direction = direction;
     }

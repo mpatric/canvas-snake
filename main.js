@@ -12,7 +12,7 @@ function init() {
   canvas = document.getElementById('game');
   ticker = setInterval(function() {
     tick();
-  }, 500);
+  }, 66);
 }
 
 function stop() {
