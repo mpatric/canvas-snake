@@ -1,4 +1,4 @@
-// Point
+// ---------- Point ----------
 
 function Point(x, y) {
   this.x = x;
@@ -22,64 +22,113 @@ Point.prototype.isEqualTo = function(otherPoint) {
   return (this.x == otherPoint.x && this.y == otherPoint.y);
 }
 
-Point.prototype.toString = function() {
-  return "(" + this.x + "," + this.y + ")";
+// ---------- Mushroom ----------
+
+function Mushroom(point) {
+  this.location = point;
+  this.life = 40 + randomNumber(40);
 }
 
+Mushroom.prototype.update = function() {
+  this.life--;
+}
 
-// PlayField
+Mushroom.prototype.alive = function() {
+  return (this.life > 0);
+}
+
+Mushroom.prototype.draw = function() {
+  context.fillStyle = 'green';
+  context.fillRect(this.location.x * xScale, this.location.y * yScale, xScale, yScale);
+}
+
+Mushroom.prototype.undraw = function() {
+  context.clearRect(this.location.x * xScale, this.location.y * yScale, xScale, yScale);
+}
+
+// ---------- Playfield ----------
 
 function PlayField(width, height) {
   this.width = width;
   this.height = height;
-  this.ticks = 0;
   this.score = 0;
   this.mushrooms = [];
 }
 
 PlayField.prototype.update = function() {
-  this.ticks++;
   var oldScore = Math.floor(this.score);
   this.score += 0.1;
   if (oldScore != Math.floor(this.score)) {
     var scoreSpan = document.getElementById('score');
     scoreSpan.innerHTML = Math.floor(this.score);
   }
-  if (this.mushrooms.length < 3 && Math.floor(Math.random() * 20) == 3) {
+  var i = 0;
+  while (i < this.mushrooms.length) {
+    this.mushrooms[i].update();
+    if (!this.mushrooms[i].alive()) {
+      this.removeMushroom(this.mushrooms[i]);
+    } else {
+      i++;
+    }
+  }
+  if (this.mushrooms.length < 3 && randomNumber(20) == 3) {
     this.spawnMushroom();
   }
 }
 
 PlayField.prototype.spawnMushroom = function() {
-  
+  var location = new Point(0, 0);
+  while (true) {
+    location.set(randomNumber(playField.width), randomNumber(playField.height));
+    if (this.mushroomAt(location) == undefined && !snake.hasSegmentAt(location)) {
+      console.log("spawn mushroom at " + location.x + ", " + location.y);
+      var mushroom = new Mushroom(location);
+      this.mushrooms.push(mushroom);
+      mushroom.draw();
+      break;
+    }
+  }
+}
+
+PlayField.prototype.removeMushroom = function(mushroom) {
+  mushroom.undraw();
+  var index = indexOf(this.mushrooms, function(mush) { return(mush == mushroom) });
+  if (index >= 0) {
+    this.mushrooms.splice(index, 1);
+  }
 }
 
 PlayField.prototype.munchMushroom = function(point) {
-  // TODO
-  return false;
+  var mushroom = this.mushroomAt(point);
+  if (mushroom != undefined) {
+    console.log("munch mushroom at " + point.x + ", " + point.y);
+    this.removeMushroom(mushroom);
+    this.score += 25;
+    return true;
+  } else {
+    return false;
+  }
 }
 
+PlayField.prototype.mushroomAt = function(point) {
+  return find(this.mushrooms, function(mush) {
+    return(mush.alive() && mush.location.isEqualTo(point));
+  });
+}
 
-// Snake
+// ---------- Snake ----------
 
-function Snake(playField, length) {
+function Snake(length) {
   var snake = this;
-  snake.playField = playField;
   snake.segments = [];
   snake.alive = true;
   snake.direction = new Point(1, 0);
   snake.lastDirection = snake.direction;
-  var x = Math.round(playField.width / 2);
-  var y = Math.round(playField.height / 2);
+  x = Math.round(playField.width / 2);
+  y = Math.round(playField.height / 2);
   for (var i = 0; i < length; i++) {
     snake.segments.push(new Point(x, y));
   }
-}
-
-Snake.prototype.toString = function() {
-  return map(this.segments, function(segment){
-    return segment.toString();
-  }).join(' ');
 }
 
 Snake.prototype.head = function() {
@@ -90,10 +139,13 @@ Snake.prototype.tail = function() {
   return this.segments[this.segments.length - 1];
 }
 
-Snake.prototype.draw = function(canvas) {
-  var context = canvas.getContext('2d');
-  var xScale = canvas.width / this.playField.width;
-  var yScale = canvas.height / this.playField.height;
+Snake.prototype.hasSegmentAt = function(location) {
+  return (arrayHas(this.segments, function(segment) {
+    return(segment.isEqualTo(location));
+  }));
+}
+
+Snake.prototype.draw = function() {
   context.fillStyle = 'red';
   if (snake.previousTail != undefined && !snake.previousTail.isEqualTo(snake.head())) {
     context.clearRect(snake.previousTail.x * xScale, snake.previousTail.y * yScale, xScale, yScale);
@@ -106,11 +158,11 @@ Snake.prototype.move = function() {
   if (snake.willMeetItsDoom()) {
     snake.alive = false;
   } else {
-    if (snake.playField.ticks % 10 == 0) {
-      snake.grow();
+    if (ticks % 10 == 0) {
+      snake.grow(1);
     }
     if (snake.willMunchAMushroom()) {
-      snake.grow();
+      snake.grow(10);
     }
     snake.previousTail = new Point(snake.tail().x, snake.tail().y);
     for (var i = snake.segments.length - 1; i > 0; i--) {
@@ -124,11 +176,11 @@ Snake.prototype.move = function() {
 Snake.prototype.willMeetItsDoom = function() {
   var snake = this;
   var newHead = snake.head().add(snake.direction);
-  if (newHead.x < 0 || newHead.x >= snake.playField.width || newHead.y < 0 || newHead.y >= snake.playField.height) {
+  if (newHead.x < 0 || newHead.x >= playField.width || newHead.y < 0 || newHead.y >= playField.height) {
     console.log('snake hit the edge of the play field');
     return true;
   }
-  if (arrayHas(snake.segments, 0, snake.segments.length - 1, function(segment) { return(newHead.x == segment.x && newHead.y == segment.y); })) {
+  if (snake.hasSegmentAt(newHead)) {
     console.log('snake hit itself');
     return true;
   }
@@ -140,9 +192,10 @@ Snake.prototype.willMunchAMushroom = function() {
   return playField.munchMushroom(newHead);
 }
 
-Snake.prototype.grow = function() {
-  console.log('grow!');
-  this.segments.push(new Point(snake.tail().x, snake.tail().y));
+Snake.prototype.grow = function(length) {
+  for (var i = 0; i < length; i++) {
+    this.segments.push(new Point(snake.tail().x, snake.tail().y));
+  }
 }
 
 Snake.prototype.changeDirection = function(direction) {
@@ -154,22 +207,13 @@ Snake.prototype.changeDirection = function(direction) {
   }
 }
 
-/*
-snake.grow
-*/
 
-// Keyboard controller
-
-// left: 37
-// right: 39
-// up: 38
-// down: 40
+// ---------- Keyboard controller ----------
 
 keyMap = new Object({37: new Point(-1, 0), 39: new Point(1, 0), 38: new Point(0, -1), 40: new Point(0, 1)});
 
-function KeyboardController(snake) {
+function KeyboardController() {
   var keyboardController = this;
-  keyboardController.snake = snake;
   keyboardController.keysDown = [];
   document.onkeydown = function(event) { keyboardController.keyDown(event); }
   document.onkeyup = function(event) { keyboardController.keyUp(event); }
@@ -179,7 +223,7 @@ KeyboardController.prototype.keyDown = function(event) {
   var key = (event || window.event).keyCode;
   if (this.keysDown.indexOf(key) == -1) {
     this.keysDown.push(key);
-    this.snake.changeDirection(keyMap[key]);
+    snake.changeDirection(keyMap[key]);
   }
 }
 

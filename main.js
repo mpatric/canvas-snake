@@ -7,9 +7,13 @@ var readyStateCheckInterval = setInterval(function() {
 
 function init() {
   playField = new PlayField(50, 50);
-  snake = new Snake(playField, 5);
-  keyboardController = new KeyboardController(snake);
+  snake = new Snake(5);  
+  keyboardController = new KeyboardController();
   canvas = document.getElementById('game');
+  context = canvas.getContext('2d');
+  xScale = canvas.width / playField.width;
+  yScale = canvas.height / playField.height;
+  ticks = 0;
   ticker = setInterval(function() {
     tick();
   }, 66);
@@ -21,32 +25,9 @@ function stop() {
 
 function tick() {
   if (snake.alive) {
+    ticks++;
     snake.move();
     playField.update();
-    snake.draw(canvas);
+    snake.draw();
   }
-}
-
-function each(array, action) {
-  for (var i = 0; i < array.length; i++) {
-    action(array[i]);
-  }
-}
-
-function map(array, action) {
-  var result = []
-  each(array, function(n) {
-    result.push(action(n));
-  });
-  return result
-}
-
-function arrayHas(array, start, end, test) {
-  for (var i = start; i < Math.min(array.length, end + 1); i++) {
-    var t = test(array[i]);
-    if (t) {
-      return true;
-    }
-  }
-  return false;
 }
