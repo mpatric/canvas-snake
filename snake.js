@@ -26,7 +26,7 @@ Point.prototype.isEqualTo = function(otherPoint) {
 
 function Mushroom(point) {
   this.location = point;
-  this.life = 40 + randomNumber(40);
+  this.life = 50 + randomNumber(50);
 }
 
 Mushroom.prototype.update = function() {
@@ -40,10 +40,6 @@ Mushroom.prototype.alive = function() {
 Mushroom.prototype.draw = function() {
   context.fillStyle = 'green';
   context.fillRect(this.location.x * xScale, this.location.y * yScale, xScale, yScale);
-}
-
-Mushroom.prototype.undraw = function() {
-  context.clearRect(this.location.x * xScale, this.location.y * yScale, xScale, yScale);
 }
 
 // ---------- Playfield ----------
@@ -81,17 +77,14 @@ PlayField.prototype.spawnMushroom = function() {
   while (true) {
     location.set(randomNumber(playField.width), randomNumber(playField.height));
     if (this.mushroomAt(location) == undefined && !snake.hasSegmentAt(location)) {
-      console.log("spawn mushroom at " + location.x + ", " + location.y);
       var mushroom = new Mushroom(location);
       this.mushrooms.push(mushroom);
-      mushroom.draw();
       break;
     }
   }
 }
 
 PlayField.prototype.removeMushroom = function(mushroom) {
-  mushroom.undraw();
   var index = indexOf(this.mushrooms, function(mush) { return(mush == mushroom) });
   if (index >= 0) {
     this.mushrooms.splice(index, 1);
@@ -101,7 +94,6 @@ PlayField.prototype.removeMushroom = function(mushroom) {
 PlayField.prototype.munchMushroom = function(point) {
   var mushroom = this.mushroomAt(point);
   if (mushroom != undefined) {
-    console.log("munch mushroom at " + point.x + ", " + point.y);
     this.removeMushroom(mushroom);
     this.score += 25;
     return true;
@@ -113,6 +105,13 @@ PlayField.prototype.munchMushroom = function(point) {
 PlayField.prototype.mushroomAt = function(point) {
   return find(this.mushrooms, function(mush) {
     return(mush.alive() && mush.location.isEqualTo(point));
+  });
+}
+
+PlayField.prototype.draw = function() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  each(this.mushrooms, function(mushroom) {
+    mushroom.draw();
   });
 }
 
@@ -146,11 +145,18 @@ Snake.prototype.hasSegmentAt = function(location) {
 }
 
 Snake.prototype.draw = function() {
-  context.fillStyle = 'red';
-  if (snake.previousTail != undefined && !snake.previousTail.isEqualTo(snake.head())) {
-    context.clearRect(snake.previousTail.x * xScale, snake.previousTail.y * yScale, xScale, yScale);
-  }
+  context.fillStyle = 'none';
+  context.strokeStyle = '#f00';
+  context.lineWidth = (xScale + yScale) / 2;
+  context.beginPath((snake.head().x + 0.5) * xScale, (snake.head().y + 0.5) * yScale);
+  each(this.segments, function(segment) {
+    context.lineTo((segment.x + 0.5) * xScale, (segment.y + 0.5) * yScale);
+  })
+  context.stroke();
+  context.fillStyle = '#000';
   context.fillRect(snake.head().x * xScale, snake.head().y * yScale, xScale, yScale);
+  context.fillStyle = '#f00';
+  context.fillRect(snake.tail().x * xScale, snake.tail().y * yScale, xScale, yScale);
 }
 
 Snake.prototype.move = function() {
@@ -164,7 +170,6 @@ Snake.prototype.move = function() {
     if (snake.willMunchAMushroom()) {
       snake.grow(10);
     }
-    snake.previousTail = new Point(snake.tail().x, snake.tail().y);
     for (var i = snake.segments.length - 1; i > 0; i--) {
       snake.segments[i].set(snake.segments[i - 1].x, snake.segments[i - 1].y);
     }
@@ -177,11 +182,9 @@ Snake.prototype.willMeetItsDoom = function() {
   var snake = this;
   var newHead = snake.head().add(snake.direction);
   if (newHead.x < 0 || newHead.x >= playField.width || newHead.y < 0 || newHead.y >= playField.height) {
-    console.log('snake hit the edge of the play field');
     return true;
   }
   if (snake.hasSegmentAt(newHead)) {
-    console.log('snake hit itself');
     return true;
   }
   return false;

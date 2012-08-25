@@ -28,6 +28,7 @@ function tick() {
     ticks++;
     snake.move();
     playField.update();
+    playField.draw();
     snake.draw();
   }
 }
