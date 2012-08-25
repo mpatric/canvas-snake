@@ -38,8 +38,7 @@ Mushroom.prototype.alive = function() {
 }
 
 Mushroom.prototype.draw = function() {
-  context.fillStyle = 'green';
-  context.fillRect(this.location.x * xScale, this.location.y * yScale, xScale, yScale);
+  retroCanvas.drawRect(this.location.x, this.location.y, 1, 1, 'green');
 }
 
 // ---------- Playfield ----------
@@ -114,7 +113,7 @@ PlayField.prototype.mushroomAt = function(point) {
 }
 
 PlayField.prototype.draw = function() {
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  retroCanvas.clear();
   each(this.mushrooms, function(mushroom) {
     mushroom.draw();
   });
@@ -150,18 +149,13 @@ Snake.prototype.hasSegmentAt = function(location) {
 }
 
 Snake.prototype.draw = function() {
-  context.fillStyle = 'none';
-  context.strokeStyle = '#f00';
-  context.lineWidth = (xScale + yScale) / 2;
-  context.beginPath((snake.head().x + 0.5) * xScale, (snake.head().y + 0.5) * yScale);
+  retroCanvas.beginPath(snake.head().x, snake.head().y, '#f00');
   each(this.segments, function(segment) {
-    context.lineTo((segment.x + 0.5) * xScale, (segment.y + 0.5) * yScale);
+    retroCanvas.lineTo(segment.x, segment.y);
   })
-  context.stroke();
-  context.fillStyle = '#000';
-  context.fillRect(snake.head().x * xScale, snake.head().y * yScale, xScale, yScale);
-  context.fillStyle = '#f00';
-  context.fillRect(snake.tail().x * xScale, snake.tail().y * yScale, xScale, yScale);
+  retroCanvas.endPath();
+  retroCanvas.drawRect(snake.head().x, snake.head().y, 1, 1, '#000');
+  retroCanvas.drawRect(snake.tail().x, snake.tail().y, 1, 1, '#f00');
 }
 
 Snake.prototype.move = function() {
