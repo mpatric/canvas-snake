@@ -11,9 +11,11 @@ RetroCanvas.prototype.clear = function() {
   this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 }
 
-RetroCanvas.prototype.drawRect = function(x, y, width, height, colour) {
-  this.context.fillStyle = colour;
-  this.context.fillRect((x * this.xScale) + 1, (y * this.yScale) + 1, (width * this.xScale) - 2, (height * this.yScale) - 2);
+RetroCanvas.prototype.drawPixel = function(x, y, scale, colour) {
+  if (scale > 0) {
+    this.context.fillStyle = colour;
+    this.context.fillRect(((x + ((1 - scale) / 2)) * this.xScale) + 1, ((y + ((1 - scale) / 2)) * this.yScale) + 1, (scale * this.xScale) - 2, (scale * this.yScale) - 2);
+  }
 }
 
 RetroCanvas.prototype.beginPath = function(x, y, colour) {

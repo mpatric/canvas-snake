@@ -27,10 +27,26 @@ Point.prototype.isEqualTo = function(otherPoint) {
 function Mushroom(point) {
   this.location = point;
   this.life = min_mushroom_life + randomNumber(min_mushroom_life);
+  this.scale = mushroom_growth_delta;
+  this.scaling = mushroom_growth_delta;
 }
 
 Mushroom.prototype.update = function() {
-  this.life--;
+  if (this.scaling != 0) {
+    this.scale += this.scaling;
+    if (this.scaling > 0 && this.scale >= 1) {
+      this.scale = 1;
+      this.scaling = 0;
+    } else if (this.scaling < 0 && this.scale < (2 * mushroom_growth_delta)) {
+      this.scale = 0;
+      this.scaling = 0;
+    }
+  } else {
+    this.life--;
+    if (this.life == 1) {
+      this.scaling = -mushroom_growth_delta;
+    }
+  }
 }
 
 Mushroom.prototype.alive = function() {
@@ -38,7 +54,7 @@ Mushroom.prototype.alive = function() {
 }
 
 Mushroom.prototype.draw = function() {
-  retroCanvas.drawRect(this.location.x, this.location.y, 1, 1, 'green');
+  retroCanvas.drawPixel(this.location.x, this.location.y, this.scale, 'green');
 }
 
 // ---------- Playfield ----------
@@ -154,8 +170,8 @@ Snake.prototype.draw = function() {
     retroCanvas.lineTo(segment.x, segment.y);
   })
   retroCanvas.endPath();
-  retroCanvas.drawRect(snake.head().x, snake.head().y, 1, 1, '#000');
-  retroCanvas.drawRect(snake.tail().x, snake.tail().y, 1, 1, '#f00');
+  retroCanvas.drawPixel(snake.head().x, snake.head().y, 1, '#000');
+  retroCanvas.drawPixel(snake.tail().x, snake.tail().y, 1, '#f00');
 }
 
 Snake.prototype.move = function() {
