@@ -47,17 +47,13 @@ Mushroom.prototype.draw = function() {
 function PlayField(width, height) {
   this.width = width;
   this.height = height;
-  this.score = 0;
   this.mushrooms = [];
+  this.score = -1;
+  this.updateScore(0);
 }
 
 PlayField.prototype.update = function() {
-  var oldScore = Math.floor(this.score);
-  this.score += 0.1;
-  if (oldScore != Math.floor(this.score)) {
-    var scoreSpan = document.getElementById('score');
-    scoreSpan.innerHTML = Math.floor(this.score);
-  }
+  this.updateScore(this.score + 0.1);
   var i = 0;
   while (i < this.mushrooms.length) {
     this.mushrooms[i].update();
@@ -69,6 +65,15 @@ PlayField.prototype.update = function() {
   }
   if (this.mushrooms.length < 3 && randomNumber(20) == 3) {
     this.spawnMushroom();
+  }
+}
+
+PlayField.prototype.updateScore = function(score) {
+  var oldScore = this.score;
+  this.score = score;
+  if (Math.floor(oldScore) != Math.floor(this.score)) {
+    var scoreSpan = document.getElementById('score');
+    scoreSpan.innerHTML = Math.floor(this.score);
   }
 }
 

@@ -6,6 +6,12 @@ var readyStateCheckInterval = setInterval(function() {
 }, 10);
 
 function init() {
+  var startButton = document.getElementById('startButton');
+  registerEventHandler(startButton, 'click', function() { console.log('clicked'); start(); });
+}
+
+function start() {
+  document.getElementById('buttons').style.display = 'none';
   playField = new PlayField(50, 50);
   snake = new Snake(5);  
   keyboardController = new KeyboardController();
@@ -30,5 +36,8 @@ function tick() {
     playField.update();
     playField.draw();
     snake.draw();
+  } else {
+    stop();
+    document.getElementById('buttons').style.display = 'block';
   }
 }

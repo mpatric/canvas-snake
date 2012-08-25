@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<html class='no-js' lang='en'>
   <head>
     <title>Canvas Snake</title>
-    <script type="text/javascript" src="util.js"></script>
-    <script type="text/javascript" src="snake.js"></script>
-    <script type="text/javascript" src="main.js"></script>
-    <link href="main.css" media="screen" rel="stylesheet" type="text/css">
+    <script type='text/javascript' src='util.js'></script>
+    <script type='text/javascript' src='snake.js'></script>
+    <script type='text/javascript' src='main.js'></script>
+    <link href='main.css' media='screen' rel='stylesheet' type='text/css'>
   </head>
   <body>
     <header>
       <div class='title'>Canvas Snake</div>
       <div class='score'>Score: <span id='score'>0</span></div>
     </header>
-    <div class="main">
-      <canvas id="game" width="500" height="500">
+    <div id='main'>
+      <div id='buttons'>
+        <button type='button' id='startButton'>Start Game</button>
+      </div>
+      <canvas id='game' width='500' height='500'>
         Sorry, you need a browser that supports the HTML canvas element.
       </canvas>
     </div>

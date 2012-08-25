@@ -17,10 +17,26 @@ header .title {
 header .score {
   float: right;
 }
-div.main {
+
+div#main {
   clear: left;
+  position: relative;
+}
+
+div#buttons {
+  position: absolute;
+  width: 500px;
+  top: 225px;
+}
+div#buttons button {
+  margin: 0 auto;
+  width: 150px;
+  display: block;
+  height: 60px;
+  font-size: 20px;
 }
 
 canvas#game {
-  background: #ffc;
+  background: #FFC;
+  border: 1px solid black;
 }
