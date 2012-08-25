@@ -45,6 +45,7 @@ function tick() {
     snake.draw();
   } else {
     stop();
+    document.getElementById('startButton').innerHTML = 'Play Again';
     document.getElementById('buttons').style.display = 'block';
   }
 }
