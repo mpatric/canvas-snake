@@ -26,7 +26,7 @@ Point.prototype.isEqualTo = function(otherPoint) {
 
 function Mushroom(point) {
   this.location = point;
-  this.life = 50 + randomNumber(50);
+  this.life = min_mushroom_life + randomNumber(min_mushroom_life);
 }
 
 Mushroom.prototype.update = function() {
@@ -62,7 +62,7 @@ PlayField.prototype.update = function() {
       i++;
     }
   }
-  if (this.mushrooms.length < 3 && randomNumber(20) == 3) {
+  if (this.mushrooms.length < max_mushrooms && randomNumber(mushroom_frequency) == 3) {
     this.spawnMushroom();
   }
 }
@@ -163,11 +163,11 @@ Snake.prototype.move = function() {
   if (snake.willMeetItsDoom()) {
     snake.alive = false;
   } else {
-    if (ticks % 10 == 0) {
+    if (ticks % snake_grows_after_ticks == 0) {
       snake.grow(1);
     }
     if (snake.willMunchAMushroom()) {
-      snake.grow(10);
+      snake.grow(segments_added_per_mushroom);
     }
     for (var i = snake.segments.length - 1; i > 0; i--) {
       snake.segments[i].set(snake.segments[i - 1].x, snake.segments[i - 1].y);
