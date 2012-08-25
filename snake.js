@@ -63,6 +63,7 @@ function PlayField(width, height) {
   this.width = width;
   this.height = height;
   this.mushrooms = [];
+  this.starBursts = [];
   this.score = -1;
   this.updateScore(0);
 }
@@ -80,6 +81,15 @@ PlayField.prototype.update = function() {
   }
   if (this.mushrooms.length < max_mushrooms && randomNumber(mushroom_frequency) == 3) {
     this.spawnMushroom();
+  }
+  var i = 0;
+  while (i < this.starBursts.length) {
+    this.starBursts[i].update();
+    if (this.starBursts[i].done()) {
+      this.starBursts.splice(i, 1);
+    } else {
+      i++;
+    }
   }
 }
 
@@ -114,6 +124,7 @@ PlayField.prototype.removeMushroom = function(mushroom) {
 PlayField.prototype.munchMushroom = function(point) {
   var mushroom = this.mushroomAt(point);
   if (mushroom != undefined) {
+    this.starBursts.push(new StarBurst(mushroom.location));
     this.removeMushroom(mushroom);
     this.score += 25;
     return true;
@@ -132,6 +143,9 @@ PlayField.prototype.draw = function() {
   retroCanvas.clear();
   each(this.mushrooms, function(mushroom) {
     mushroom.draw();
+  });
+  each(this.starBursts, function(starBurst) {
+    starBurst.draw();
   });
 }
 

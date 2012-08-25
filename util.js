@@ -39,6 +39,10 @@ function randomNumber(options) {
   return(Math.floor(Math.random() * options));
 }
 
+function randomColour() {
+  return ('#' + (randomNumber(16)).toString(16) + (randomNumber(16)).toString(16) + (randomNumber(16)).toString(16));
+}
+
 function registerEventHandler(node, event, handler) {
   if (typeof node.addEventListener == "function") {
     node.addEventListener(event, handler, false);

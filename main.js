@@ -17,7 +17,7 @@ var readyStateCheckInterval = setInterval(function() {
 
 function init() {
   var startButton = document.getElementById('startButton');
-  registerEventHandler(startButton, 'click', function() { console.log('clicked'); start(); });
+  registerEventHandler(startButton, 'click', function() { start(); });
 }
 
 function start() {
