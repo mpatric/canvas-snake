@@ -50,3 +50,11 @@ function registerEventHandler(node, event, handler) {
     node.attachEvent("on" + event, handler);
   }
 }
+
+function supports_local_storage() {
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
+}

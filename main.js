@@ -1,6 +1,8 @@
 // ---------- Game settings ----------
-board_dimension = 50
+board_dimension = 50;
 max_mushrooms = 3;
+mushroom_score = 25;
+tick_score = 0.1;
 mushroom_frequency = 20;
 min_mushroom_life = 50;
 mushroom_growth_delta = 0.1;
@@ -17,16 +19,20 @@ var readyStateCheckInterval = setInterval(function() {
 
 function init() {
   var startButton = document.getElementById('startButton');
+  scoreboard = new Scoreboard();
+  scoreboard.render();
   registerEventHandler(startButton, 'click', function() { start(); });
 }
 
 function start() {
-  document.getElementById('buttons').style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
   playField = new PlayField(board_dimension, board_dimension);
   snake = new Snake(initial_snake_length);
   keyboardController = new KeyboardController();
   retroCanvas = new RetroCanvas(document.getElementById('game'), playField.width, playField.height);
   ticks = 0;
+  score = -1;
+  updateScore(0);
   ticker = setInterval(function() {
     tick();
   }, 66);
@@ -45,7 +51,18 @@ function tick() {
     snake.draw();
   } else {
     stop();
+    scoreboard.addScore(Math.floor(score));
+    scoreboard.render();
     document.getElementById('startButton').innerHTML = 'Play Again';
-    document.getElementById('buttons').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+  }
+}
+
+function updateScore(newScore) {
+  var oldScore = score;
+  score = newScore;
+  if (Math.floor(oldScore) != Math.floor(score)) {
+    var scoreSpan = document.getElementById('score');
+    scoreSpan.innerHTML = Math.floor(score);
   }
 }

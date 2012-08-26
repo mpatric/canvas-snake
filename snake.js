@@ -64,12 +64,10 @@ function PlayField(width, height) {
   this.height = height;
   this.mushrooms = [];
   this.starBursts = [];
-  this.score = -1;
-  this.updateScore(0);
 }
 
 PlayField.prototype.update = function() {
-  this.updateScore(this.score + 0.1);
+  updateScore(score + tick_score);
   var i = 0;
   while (i < this.mushrooms.length) {
     this.mushrooms[i].update();
@@ -90,15 +88,6 @@ PlayField.prototype.update = function() {
     } else {
       i++;
     }
-  }
-}
-
-PlayField.prototype.updateScore = function(score) {
-  var oldScore = this.score;
-  this.score = score;
-  if (Math.floor(oldScore) != Math.floor(this.score)) {
-    var scoreSpan = document.getElementById('score');
-    scoreSpan.innerHTML = Math.floor(this.score);
   }
 }
 
@@ -126,7 +115,7 @@ PlayField.prototype.munchMushroom = function(point) {
   if (mushroom != undefined) {
     this.starBursts.push(new StarBurst(mushroom.location));
     this.removeMushroom(mushroom);
-    this.score += 25;
+    updateScore(score + mushroom_score);
     return true;
   } else {
     return false;
@@ -264,5 +253,57 @@ KeyboardController.prototype.keyUp = function(event) {
   var index = this.keysDown.indexOf(key);
   if (index >= 0) {
     this.keysDown.splice(index, 1);
+  }
+}
+
+// ---------- Scoreboard ----------
+
+function Scoreboard() {
+  if (supports_local_storage()) {
+    var data = localStorage.getItem("scoreboard") || "0,0,0,0,0,0,0,0,0,0";
+    this.scores = data.split(',');
+    for (var i = 0; i < this.scores.length; i++) { this.scores[i] = parseInt(this.scores[i]); }
+  }
+}
+
+Scoreboard.prototype.addScore = function(playerScore) {
+  console.log('addScore(' + playerScore + ')');
+  if (this.scores) {
+    var i = 0;
+    while (i < this.scores.length) {
+      console.log(i);
+      if (playerScore >= this.scores[i]) {
+        console.log('inserting score at position ' + i);
+        this.scores.splice(i, 0, playerScore);
+        this.scores.splice(this.scores.length - 1, 1);
+        this.playerScore = playerScore;
+        localStorage.setItem("scoreboard", this.scores.toString());
+        return;
+      }
+      i++;
+    }
+    this.playerScore = undefined;
+  }
+}
+
+Scoreboard.prototype.render = function() {
+  console.log('scores: ' + this.scores + '(' + typeof(this.scores) + ')');
+  if (this.scores) {
+    var scoreboard = this;
+    var container = document.getElementById('highscores');
+    var table = "<table><tr><th colspan='2'>Local High Scores</th></tr>";
+    var i = 1;
+    each(scoreboard.scores, function(score) {
+      if (score == scoreboard.playerScore) {
+        table += "<tr class='player'>";
+        scoreboard.playerScore = undefined;
+      } else {
+        table += "<tr>";
+      }
+      table += "<td>" + i + "</td><td>" + scoreboard.scores[i - 1] + "</td>";
+      i++;
+    });
+    table += "</table>";
+    container.innerHTML = table;
   }
 }
