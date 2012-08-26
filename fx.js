@@ -11,14 +11,15 @@ StarBurst.prototype.update = function() {
 
 StarBurst.prototype.draw = function() {
   var colour = randomColour();
+  var d = (Math.sqrt((this.spread * this.spread) / 2));
   retroCanvas.drawPixel(this.location.x + this.spread, this.location.y, 1, colour);
-  retroCanvas.drawPixel(this.location.x + this.spread, this.location.y + this.spread, 1, colour);
+  retroCanvas.drawPixel(this.location.x + d, this.location.y + d, 1, colour);
   retroCanvas.drawPixel(this.location.x, this.location.y + this.spread, 1, colour);
-  retroCanvas.drawPixel(this.location.x - this.spread, this.location.y + this.spread, 1, colour);
+  retroCanvas.drawPixel(this.location.x - d, this.location.y + d, 1, colour);
   retroCanvas.drawPixel(this.location.x - this.spread, this.location.y, 1, colour);
-  retroCanvas.drawPixel(this.location.x - this.spread, this.location.y - this.spread, 1, colour);
+  retroCanvas.drawPixel(this.location.x - d, this.location.y - d, 1, colour);
   retroCanvas.drawPixel(this.location.x, this.location.y - this.spread, 1, colour);
-  retroCanvas.drawPixel(this.location.x + this.spread, this.location.y - this.spread, 1, colour);
+  retroCanvas.drawPixel(this.location.x + d, this.location.y - d, 1, colour);
 }
 
 StarBurst.prototype.done = function() {
