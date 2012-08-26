@@ -67,7 +67,6 @@ function PlayField(width, height) {
 }
 
 PlayField.prototype.update = function() {
-  updateScore(score + tick_score);
   var i = 0;
   while (i < this.mushrooms.length) {
     this.mushrooms[i].update();

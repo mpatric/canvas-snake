@@ -25,6 +25,7 @@ function init() {
 }
 
 function start() {
+  stop();
   document.getElementById('overlay').style.display = 'none';
   playField = new PlayField(board_dimension, board_dimension);
   snake = new Snake(initial_snake_length);
@@ -33,24 +34,29 @@ function start() {
   ticks = 0;
   score = -1;
   updateScore(0);
+  gameOver = false;
   ticker = setInterval(function() {
     tick();
   }, 66);
 }
 
 function stop() {
-  clearInterval(ticker);
+  if (typeof(ticker) != 'undefined') {
+    clearInterval(ticker);
+  }
 }
 
 function tick() {
+  ticks++;
   if (snake.alive) {
-    ticks++;
+    updateScore(score + tick_score);
     snake.move();
-    playField.update();
-    playField.draw();
-    snake.draw();
-  } else {
-    stop();
+  }
+  playField.update();
+  playField.draw();
+  snake.draw();
+  if (!gameOver && !snake.alive) {
+    gameOver = true;
     scoreboard.addScore(Math.floor(score));
     scoreboard.render();
     document.getElementById('startButton').innerHTML = 'Play Again';
