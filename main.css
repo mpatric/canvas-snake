@@ -17,6 +17,12 @@ header .title {
 header .score {
   float: right;
 }
+footer .copyright {
+  float: left;
+}
+footer .source {
+  float: right;
+}
 
 div#main {
   clear: left;
