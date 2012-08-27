@@ -1,4 +1,5 @@
 // ---------- Game settings ----------
+tick_period = 66;
 board_dimension = 50;
 max_mushrooms = 3;
 mushroom_score = 25;
@@ -37,7 +38,7 @@ function start() {
   gameOver = false;
   ticker = setInterval(function() {
     tick();
-  }, 66);
+  }, tick_period);
 }
 
 function stop() {
