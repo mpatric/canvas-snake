@@ -266,13 +266,10 @@ function Scoreboard() {
 }
 
 Scoreboard.prototype.addScore = function(playerScore) {
-  console.log('addScore(' + playerScore + ')');
   if (this.scores) {
     var i = 0;
     while (i < this.scores.length) {
-      console.log(i);
       if (playerScore >= this.scores[i]) {
-        console.log('inserting score at position ' + i);
         this.scores.splice(i, 0, playerScore);
         this.scores.splice(this.scores.length - 1, 1);
         this.playerScore = playerScore;
@@ -286,7 +283,6 @@ Scoreboard.prototype.addScore = function(playerScore) {
 }
 
 Scoreboard.prototype.render = function() {
-  console.log('scores: ' + this.scores + '(' + typeof(this.scores) + ')');
   if (this.scores) {
     var scoreboard = this;
     var container = document.getElementById('highscores');
