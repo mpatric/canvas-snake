@@ -12,7 +12,7 @@ function map(array, action) {
   return result
 }
 
-function indexOf(array, test) {
+function findIndex(array, test) {
   for (var i = 0; i < array.length; i++) {
     var t = test(array[i]);
     if (t) {

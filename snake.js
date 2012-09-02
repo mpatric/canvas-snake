@@ -103,7 +103,7 @@ PlayField.prototype.spawnMushroom = function() {
 }
 
 PlayField.prototype.removeMushroom = function(mushroom) {
-  var index = indexOf(this.mushrooms, function(mush) { return(mush == mushroom) });
+  var index = findIndex(this.mushrooms, function(mush) { return(mush == mushroom) });
   if (index >= 0) {
     this.mushrooms.splice(index, 1);
   }
@@ -241,7 +241,7 @@ function KeyboardController() {
 
 KeyboardController.prototype.keyDown = function(event) {
   var key = (event || window.event).keyCode;
-  if (this.keysDown.indexOf(key) == -1) {
+  if (this.keysDown.findIndex(key) == -1) {
     this.keysDown.push(key);
     snake.changeDirection(keyMap[key]);
   }
@@ -249,7 +249,7 @@ KeyboardController.prototype.keyDown = function(event) {
 
 KeyboardController.prototype.keyUp = function(event) {
   var key = (event || window.event).keyCode;
-  var index = this.keysDown.indexOf(key);
+  var index = this.keysDown.findIndex(key);
   if (index >= 0) {
     this.keysDown.splice(index, 1);
   }
